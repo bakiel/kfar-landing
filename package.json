@@ -1,0 +1,19 @@
+{
+  "name": "kfar-marketplace-coming-soon",
+  "version": "1.0.0",
+  "description": "KFAR Marketplace Coming Soon Page",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'No build required'"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
