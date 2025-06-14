@@ -13,6 +13,7 @@ app.use(express.static(__dirname));
 // SendGrid configuration
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const FROM_EMAIL = process.env.FROM_EMAIL || 'hello@kfarshop.com';
+const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || 'bakielisrael@gmail.com';
 
 // Email template
 const getComingSoonEmailHTML = (name = 'Friend') => `
@@ -84,10 +85,124 @@ const getComingSoonEmailHTML = (name = 'Friend') => `
 </html>
 `;
 
+// Function to send notification email to admin
+const sendNotificationEmail = async (formData) => {
+  const notificationHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>New KFAR Shop Form Submission</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #478c0b 0%, #f6af0d 100%); padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+    <h1 style="color: white; margin: 0;">🎉 New KFAR Shop Submission!</h1>
+  </div>
+  
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px;">
+    <h2 style="color: #478c0b; margin-top: 0;">Customer Details:</h2>
+    <table style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Name:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formData.firstName} ${formData.lastName || ''}</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Email:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formData.email}</td>
+      </tr>
+      ${formData.phone ? `
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Phone:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formData.phone}</td>
+      </tr>
+      ` : ''}
+      ${formData.location ? `
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Location:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formData.location}</td>
+      </tr>
+      ` : ''}
+      ${formData.preferences ? `
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Interests:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${formData.preferences}</td>
+      </tr>
+      ` : ''}
+      <tr>
+        <td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd;">Submitted:</td>
+        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Date().toLocaleString()}</td>
+      </tr>
+    </table>
+  </div>
+  
+  <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e8; border-radius: 8px;">
+    <p style="margin: 0; color: #478c0b; font-weight: bold;">
+      💡 Action Required: Follow up with this customer within 24 hours for best conversion rates!
+    </p>
+  </div>
+</body>
+</html>`;
+
+  const notificationData = JSON.stringify({
+    personalizations: [{ to: [{ email: NOTIFICATION_EMAIL, name: 'KFAR Admin' }] }],
+    from: { email: FROM_EMAIL, name: 'KFAR Shop System' },
+    subject: `🔔 New KFAR Shop Customer: ${formData.firstName} ${formData.lastName || ''}`,
+    content: [{ type: 'text/html', value: notificationHTML }]
+  });
+
+  const options = {
+    hostname: 'api.sendgrid.com',
+    port: 443,
+    path: '/v3/mail/send',
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json',
+      'Content-Length': notificationData.length
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (response) => {
+      if (response.statusCode === 202) {
+        resolve();
+      } else {
+        let body = '';
+        response.on('data', chunk => body += chunk);
+        response.on('end', () => {
+          console.error('Notification email failed:', response.statusCode, body);
+          resolve(); // Don't fail the main request if notification fails
+        });
+      }
+    });
+
+    req.on('error', (error) => {
+      console.error('Notification email error:', error);
+      resolve(); // Don't fail the main request if notification fails
+    });
+    
+    req.write(notificationData);
+    req.end();
+  });
+};
+
 // API endpoint for customer waitlist
 app.post('/api/customer-waitlist', async (req, res) => {
+  // Log submission data for debugging
+  console.log('\n🎉 New KFAR Shop submission received:');
+  console.log('=====================================');
+  console.log('Time:', new Date().toLocaleString());
+  console.log('Data:', req.body);
+  console.log('=====================================\n');
+
   if (!SENDGRID_API_KEY) {
-    return res.status(500).json({ error: 'Email service not configured' });
+    console.log('⚠️ SendGrid not configured, using fallback mode');
+    return res.json({ 
+      success: true, 
+      message: 'Thank you for joining KFAR Shop! We\'ll notify you when we launch.',
+      waitlistNumber: Math.floor(Math.random() * 500) + 100,
+      note: 'Email service will be available soon'
+    });
   }
 
   const { firstName, lastName, email, phone, location, preferences, referralSource } = req.body;
@@ -241,6 +356,10 @@ app.post('/api/customer-waitlist', async (req, res) => {
       req.write(data);
       req.end();
     });
+
+    // Send notification email to admin (don't wait for it)
+    sendNotificationEmail({ firstName, lastName, email, phone, location, preferences, referralSource })
+      .catch(error => console.error('Failed to send notification:', error));
 
     res.json({ 
       success: true, 
