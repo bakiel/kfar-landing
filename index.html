@@ -782,7 +782,7 @@
         <div class="countdown-container animate-fade-in">
             <!-- Brand Identity -->
             <div class="brand-logo">
-                KFAR MARKETPLACE
+                KFAR SHOP
             </div>
             <p class="tagline">
                 The Whole Village, In Your Hand
@@ -2809,6 +2809,63 @@
                 }
             });
         }
+
+        // Countdown Timer Function
+        function initCountdown() {
+            // Set launch date (30 days from now)
+            const launchDate = new Date();
+            launchDate.setDate(launchDate.getDate() + 30);
+            launchDate.setHours(12, 0, 0, 0); // Set to noon
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = launchDate.getTime() - now;
+                
+                if (distance < 0) {
+                    // Countdown finished
+                    document.getElementById('days').textContent = '0';
+                    document.getElementById('hours').textContent = '0';
+                    document.getElementById('minutes').textContent = '0';
+                    document.getElementById('seconds').textContent = '0';
+                    return;
+                }
+                
+                // Calculate time components
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Update display
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+                
+                // Update circle progress (optional visual enhancement)
+                const dayProgress = (days / 30) * 360;
+                const hourProgress = (hours / 24) * 360;
+                const minuteProgress = (minutes / 60) * 360;
+                const secondProgress = (seconds / 60) * 360;
+                
+                const daysCircle = document.querySelector('#days').closest('.countdown-item').querySelector('.circle-progress');
+                const hoursCircle = document.querySelector('#hours').closest('.countdown-item').querySelector('.circle-progress');
+                const minutesCircle = document.querySelector('#minutes').closest('.countdown-item').querySelector('.circle-progress');
+                const secondsCircle = document.querySelector('#seconds').closest('.countdown-item').querySelector('.circle-progress');
+                
+                if (daysCircle) daysCircle.style.setProperty('--progress', dayProgress + 'deg');
+                if (hoursCircle) hoursCircle.style.setProperty('--progress', hourProgress + 'deg');
+                if (minutesCircle) minutesCircle.style.setProperty('--progress', minuteProgress + 'deg');
+                if (secondsCircle) secondsCircle.style.setProperty('--progress', secondProgress + 'deg');
+            }
+            
+            // Update immediately and then every second
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        // Initialize countdown when page loads
+        document.addEventListener('DOMContentLoaded', initCountdown);
 
         console.log('🌱 KFAR Shop - Where Heritage Meets Innovation');
         console.log('🌿 Yah Khai! HalleluYah!');
