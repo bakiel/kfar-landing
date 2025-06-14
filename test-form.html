@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test KFAR Shop Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 10px; 
+            border-radius: 4px; 
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #478c0b;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #3a7009; }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            max-width: 200px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="images/logos/kfar_logo_main.png" alt="KFAR Shop Logo">
+        <h1>KFAR Shop Form Testing</h1>
+    </div>
+
+    <div class="test-section">
+        <h2>📧 SendGrid Email Test</h2>
+        <p>Test if SendGrid backend is working correctly.</p>
+        <button onclick="testSendGrid()">Test SendGrid Email</button>
+        <div id="sendgrid-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Form Submission Test</h2>
+        <p>Test the customer waitlist form submission.</p>
+        
+        <form id="test-form">
+            <div style="margin: 10px 0;">
+                <label>First Name: <input type="text" id="firstName" value="Test" required></label>
+            </div>
+            <div style="margin: 10px 0;">
+                <label>Last Name: <input type="text" id="lastName" value="User"></label>
+            </div>
+            <div style="margin: 10px 0;">
+                <label>Email: <input type="email" id="email" value="test@example.com" required></label>
+            </div>
+            <div style="margin: 10px 0;">
+                <label>Phone: <input type="tel" id="phone" value="+972501234567"></label>
+            </div>
+            <button type="submit">Submit Test Form</button>
+        </form>
+        <div id="form-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Local Storage Check</h2>
+        <p>Check if form data is being saved locally as backup.</p>
+        <button onclick="checkLocalStorage()">Check Local Storage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🌐 Server Status</h2>
+        <p>Check if the server is running and configured correctly.</p>
+        <button onclick="checkServer()">Check Server Status</button>
+        <div id="server-result"></div>
+    </div>
+
+    <script>
+        // Test SendGrid
+        async function testSendGrid() {
+            const resultDiv = document.getElementById('sendgrid-result');
+            resultDiv.innerHTML = '<div class="status info">Testing SendGrid...</div>';
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        name: 'Test User'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<div class="status success">✅ SendGrid is working! Check email for test message.</div>';
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ SendGrid Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Network Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test Form Submission
+        document.getElementById('test-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('form-result');
+            resultDiv.innerHTML = '<div class="status info">Submitting form...</div>';
+            
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: 'dimona-city',
+                preferences: 'fresh-produce, prepared-foods',
+                referralSource: 'testing'
+            };
+            
+            try {
+                const response = await fetch('/api/customer-waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="status success">✅ Form submitted successfully!<br>
+                        Message: ${data.message}<br>
+                        Waitlist #: ${data.waitlistNumber}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="status error">❌ Form Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Network Error: ${error.message}<br>
+                    <small>Make sure the server is running with: npm start</small></div>`;
+            }
+        });
+
+        // Check Local Storage
+        function checkLocalStorage() {
+            const resultDiv = document.getElementById('storage-result');
+            const waitlist = localStorage.getItem('kfar_customer_waitlist');
+            
+            if (waitlist) {
+                const data = JSON.parse(waitlist);
+                resultDiv.innerHTML = `<div class="status success">✅ Local Storage has ${data.length} entries:<br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+            } else {
+                resultDiv.innerHTML = '<div class="status info">ℹ️ No data in local storage yet.</div>';
+            }
+        }
+
+        // Check Server Status
+        async function checkServer() {
+            const resultDiv = document.getElementById('server-result');
+            resultDiv.innerHTML = '<div class="status info">Checking server...</div>';
+            
+            try {
+                const response = await fetch('/');
+                if (response.ok) {
+                    resultDiv.innerHTML = '<div class="status success">✅ Server is running!</div>';
+                } else {
+                    resultDiv.innerHTML = '<div class="status error">❌ Server returned error status.</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">❌ Server is not running.<br>
+                    <small>Start it with: cd deploy-coming-soon && npm start</small></div>`;
+            }
+        }
+
+        // Auto-check server on load
+        window.onload = () => {
+            checkServer();
+        };
+    </script>
+</body>
+</html>
