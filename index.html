@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="KFAR Shop - Where 50 years of Village of Peace excellence meets modern digital commerce. 100% vegan community shop launching soon.">
-    <meta name="keywords" content="KFAR, Village of Peace, vegan marketplace, African Hebrew Israelite, Dimona Israel, plant-based shopping">
+    <meta name="keywords" content="KFAR, Village of Peace, vegan shop, African Hebrew Israelite, Dimona Israel, plant-based shopping">
     <meta property="og:title" content="KFAR Shop - The Future of Community Commerce">
     <meta property="og:description" content="Join the digital revolution of the world's first 100% vegan community. Shop with purpose, support with community.">
     <meta property="og:image" content="/images/logos/kfar_logo_main.png">
@@ -838,7 +838,7 @@
                 <span class="block">Meets Digital Innovation</span>
             </h1>
             <p class="hero-subtitle">
-                The Village of Peace brings you the world's first 100% vegan community marketplace
+                The Village of Peace brings you the world's first 100% vegan community shop
             </p>
 
             <!-- Vendor Call-to-Action for Dimona -->
@@ -848,7 +848,7 @@
                     Calling all Dimona vendors! Join KFAR's digital revolution.
                 </p>
                 <p class="text-sm text-gray-700 mt-1">
-                    Be among the first vendors in our marketplace. Limited spots available!
+                    Be among the first vendors in our shop. Limited spots available!
                 </p>
             </div>
 
@@ -998,7 +998,7 @@
                         <ul class="space-y-3 text-gray-600">
                             <li class="flex items-start space-x-2">
                                 <i class="fas fa-check text-green-500 mt-1"></i>
-                                <span>Individual success stories becoming interconnected marketplace</span>
+                                <span>Individual success stories becoming interconnected shop</span>
                             </li>
                             <li class="flex items-start space-x-2">
                                 <i class="fas fa-check text-green-500 mt-1"></i>
@@ -1521,7 +1521,7 @@
                         <div class="space-y-4">
                             <div class="flex items-center">
                                 <i class="fas fa-shield-alt text-lg mr-3" style="color: #478c0b;"></i>
-                                <span class="font-semibold">AI-Powered Compliance: First marketplace with automated dietary rule verification</span>
+                                <span class="font-semibold">AI-Powered Compliance: First shop with automated dietary rule verification</span>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-search text-lg mr-3" style="color: #c23c09;"></i>
@@ -2022,7 +2022,7 @@
                 <!-- Final tagline -->
                 <div class="mt-12 pt-8 border-t border-white/20 observe-fade-up" style="animation-delay: 0.8s">
                     <p class="text-2xl font-space font-bold mb-2">Yah Khai! HalleluYah!</p>
-                    <p class="text-lg opacity-90">#KFARMarketplace #VillageOfPeace #PlantBasedPioneers</p>
+                    <p class="text-lg opacity-90">#KFARShop #VillageOfPeace #PlantBasedPioneers</p>
                 </div>
             </div>
         </div>
@@ -2225,7 +2225,7 @@
                     <img src="images/logos/kfar_logo_main.png" alt="KFAR Logo" class="w-20 h-20 mb-4 object-contain">
                     <h4 class="font-space font-bold text-lg mb-4">KFAR Shop</h4>
                     <p class="text-gray-400 text-sm">
-                        The digital home of the Village of Peace community marketplace.
+                        The digital home of the Village of Peace community shop.
                     </p>
                 </div>
 
@@ -2812,10 +2812,14 @@
 
         // Countdown Timer Function
         function initCountdown() {
+            console.log('🕐 Initializing countdown timer...');
+            
             // Set launch date (30 days from now)
             const launchDate = new Date();
             launchDate.setDate(launchDate.getDate() + 30);
             launchDate.setHours(12, 0, 0, 0); // Set to noon
+            
+            console.log('📅 Launch date set to:', launchDate);
             
             function updateCountdown() {
                 const now = new Date().getTime();
@@ -2827,6 +2831,7 @@
                     document.getElementById('hours').textContent = '0';
                     document.getElementById('minutes').textContent = '0';
                     document.getElementById('seconds').textContent = '0';
+                    console.log('🎉 Countdown finished!');
                     return;
                 }
                 
@@ -2836,25 +2841,56 @@
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
                 
+                // Check if elements exist
+                const daysEl = document.getElementById('days');
+                const hoursEl = document.getElementById('hours');
+                const minutesEl = document.getElementById('minutes');
+                const secondsEl = document.getElementById('seconds');
+                
+                if (!daysEl || !hoursEl || !minutesEl || !secondsEl) {
+                    console.error('❌ Countdown elements not found!');
+                    return;
+                }
+                
                 // Update display only - preserve original design
-                document.getElementById('days').textContent = days;
-                document.getElementById('hours').textContent = hours;
-                document.getElementById('minutes').textContent = minutes;
-                document.getElementById('seconds').textContent = seconds;
+                daysEl.textContent = days;
+                hoursEl.textContent = hours;
+                minutesEl.textContent = minutes;
+                secondsEl.textContent = seconds;
+                
+                // Log first few updates for debugging
+                if (updateCount < 3) {
+                    console.log(`⏰ Update ${updateCount + 1}: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+                }
+                updateCount++;
             }
+            
+            let updateCount = 0;
             
             // Update immediately and then every second
             updateCountdown();
-            setInterval(updateCountdown, 1000);
+            const interval = setInterval(updateCountdown, 1000);
+            
+            console.log('✅ Countdown timer started successfully');
         }
 
         // Initialize countdown when page loads
-        document.addEventListener('DOMContentLoaded', initCountdown);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCountdown);
+        } else {
+            initCountdown();
+        }
 
         console.log('🌱 KFAR Shop - Where Heritage Meets Innovation');
         console.log('🌿 Yah Khai! HalleluYah!');
         console.log('📍 Now accepting vendor applications from Dimona, Israel!');
         console.log('📧 Customer inquiries: info@kfarmarket.com');
+        
+        // Force countdown to start immediately
+        setTimeout(() => {
+            console.log('🔄 Force starting countdown...');
+            initCountdown();
+        }, 100);
     </script>
 </body>
 </html>

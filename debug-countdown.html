@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Countdown</title>
+</head>
+<body>
+    <h1>Debug: KFAR Shop Countdown</h1>
+    
+    <div>
+        Days: <span id="days">--</span> |
+        Hours: <span id="hours">--</span> |
+        Minutes: <span id="minutes">--</span> |
+        Seconds: <span id="seconds">--</span>
+    </div>
+    
+    <div id="debug" style="margin-top: 20px; font-family: monospace;"></div>
+
+    <script>
+        function debug(msg) {
+            const debugDiv = document.getElementById('debug');
+            debugDiv.innerHTML += msg + '<br>';
+            console.log(msg);
+        }
+
+        debug('🚀 Starting countdown debug...');
+
+        // Test basic functionality first
+        const testElements = ['days', 'hours', 'minutes', 'seconds'];
+        testElements.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                debug(`✅ Found element: ${id}`);
+                el.textContent = '99';
+            } else {
+                debug(`❌ Missing element: ${id}`);
+            }
+        });
+
+        // Set launch date
+        const launchDate = new Date();
+        launchDate.setDate(launchDate.getDate() + 30);
+        launchDate.setHours(12, 0, 0, 0);
+        
+        debug(`📅 Launch date: ${launchDate}`);
+
+        let updateCount = 0;
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate.getTime() - now;
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+            
+            updateCount++;
+            if (updateCount <= 5) {
+                debug(`⏰ Update ${updateCount}: ${days}d ${hours}h ${minutes}m ${seconds}s`);
+            }
+        }
+
+        debug('🔄 Starting timer...');
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        debug('✅ Timer started!');
+    </script>
+</body>
+</html>
