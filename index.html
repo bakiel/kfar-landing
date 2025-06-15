@@ -2899,7 +2899,7 @@
     <style>
         /* Mobile menu container */
         #mobileMenu {
-            z-index: 9999 !important;
+            z-index: 99999 !important;
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -2908,6 +2908,16 @@
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             overscroll-behavior: contain;
+        }
+        
+        /* Override Tailwind's hidden class */
+        #mobileMenu.hidden {
+            display: none !important;
+        }
+        
+        /* Ensure menu is visible when not hidden */
+        #mobileMenu:not(.hidden) {
+            display: block !important;
         }
         
         /* Header z-index */
@@ -2999,36 +3009,79 @@
                 const newClose = close.cloneNode(true);
                 close.parentNode.replaceChild(newClose, close);
                 
-                // Simple toggle
+                // Simple toggle with bulletproof styles
                 newBtn.addEventListener('click', function() {
                     console.log('Menu button clicked - opening');
-                    menu.style.display = 'block';
-                    menu.classList.remove('hidden');
-                    menu.style.position = 'fixed';
-                    menu.style.top = '0';
-                    menu.style.left = '0';
-                    menu.style.right = '0';
-                    menu.style.bottom = '0';
-                    menu.style.zIndex = '9999';
-                    menu.style.transform = 'translateX(0)';
+                    
+                    // Remove ALL classes that might interfere
+                    menu.className = '';
+                    
+                    // Set explicit inline styles that override everything
+                    menu.setAttribute('style', `
+                        display: block !important;
+                        position: fixed !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        width: 100% !important;
+                        height: 100% !important;
+                        z-index: 99999 !important;
+                        background-color: #ff0000 !important;
+                        transform: none !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        pointer-events: auto !important;
+                        overflow-y: auto !important;
+                    `);
+                    
+                    // Also ensure the inner content is visible
+                    const innerDiv = menu.querySelector('.flex.flex-col.h-full');
+                    if (innerDiv) {
+                        innerDiv.style.opacity = '1';
+                        innerDiv.style.visibility = 'visible';
+                        innerDiv.style.display = 'flex';
+                    }
+                    
+                    // Add debug text
+                    if (!menu.querySelector('.debug-text')) {
+                        const debugText = document.createElement('div');
+                        debugText.className = 'debug-text';
+                        debugText.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: white; font-weight: bold; z-index: 999999;';
+                        debugText.textContent = 'MENU IS VISIBLE!';
+                        menu.appendChild(debugText);
+                    }
+                    
                     document.body.style.overflow = 'hidden';
+                    console.log('Menu should be visible now');
                 });
                 
                 newClose.addEventListener('click', function() {
                     console.log('Close button clicked');
                     menu.style.display = 'none';
-                    menu.classList.add('hidden');
+                    menu.className = 'hidden fixed inset-0 bg-white shadow-2xl';
                     document.body.style.overflow = '';
                 });
                 
                 // Close on nav clicks
                 menu.querySelectorAll('a').forEach(link => {
                     link.addEventListener('click', function() {
+                        console.log('Nav link clicked - closing menu');
                         menu.style.display = 'none';
-                        menu.classList.add('hidden');
+                        menu.className = 'hidden fixed inset-0 bg-white shadow-2xl';
                         document.body.style.overflow = '';
                     });
                 });
+                
+                // Also add a test button to verify menu is working
+                const testBtn = document.createElement('button');
+                testBtn.textContent = 'TEST MENU';
+                testBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: red; color: white; padding: 10px; z-index: 9999; border-radius: 5px;';
+                testBtn.onclick = function() {
+                    alert('Test button works!');
+                    newBtn.click();
+                };
+                document.body.appendChild(testBtn);
                 
                 console.log('Simple mobile menu ready');
             } else {
