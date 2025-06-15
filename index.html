@@ -709,7 +709,7 @@
         </nav>
 
         <!-- Enhanced Mobile menu -->
-        <div class="hidden fixed inset-0 bg-white" id="mobileMenu" style="z-index: 9999;">
+        <div class="hidden fixed inset-0 bg-white" id="mobileMenu" style="z-index: 9999; transform: translateX(100%);">
             <div class="flex flex-col h-full">
                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-mint to-cream">
                     <div class="flex items-center space-x-3">
@@ -2313,34 +2313,39 @@
         const closeMobileMenu = document.getElementById('closeMobileMenu');
         let isMenuAnimating = false;
 
+        // Debug check
+        if (!mobileMenuBtn || !mobileMenu || !closeMobileMenu) {
+            console.error('Mobile menu elements not found:', {
+                btn: !!mobileMenuBtn,
+                menu: !!mobileMenu,
+                close: !!closeMobileMenu
+            });
+        }
+
         // Create backdrop element
         const backdrop = document.createElement('div');
         backdrop.className = 'fixed inset-0 bg-black/50 opacity-0 transition-opacity duration-300 pointer-events-none';
         backdrop.style.zIndex = '9998';
+        backdrop.id = 'mobileMenuBackdrop';
         document.body.appendChild(backdrop);
 
         // Open menu function with animation
         function openMenu() {
+            console.log('Opening menu');
             if (isMenuAnimating) return;
             isMenuAnimating = true;
 
             // Show backdrop
             backdrop.classList.remove('pointer-events-none');
             backdrop.classList.add('pointer-events-auto');
-            requestAnimationFrame(() => {
-                backdrop.classList.remove('opacity-0');
-                backdrop.classList.add('opacity-100');
-            });
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
 
             // Show menu with slide animation
             mobileMenu.classList.remove('hidden');
-            mobileMenu.style.transform = 'translateX(100%)';
+            mobileMenu.style.transition = 'transform 0.3s ease-out';
+            mobileMenu.style.transform = 'translateX(0)';
             document.body.classList.add('menu-open');
-            
-            requestAnimationFrame(() => {
-                mobileMenu.style.transition = 'transform 0.3s ease-out';
-                mobileMenu.style.transform = 'translateX(0)';
-            });
 
             setTimeout(() => {
                 isMenuAnimating = false;
@@ -2349,6 +2354,7 @@
 
         // Close menu function with animation
         function closeMenu() {
+            console.log('Closing menu');
             if (isMenuAnimating) return;
             isMenuAnimating = true;
 
@@ -2357,6 +2363,7 @@
             backdrop.classList.add('opacity-0');
             
             // Slide menu out
+            mobileMenu.style.transition = 'transform 0.3s ease-out';
             mobileMenu.style.transform = 'translateX(100%)';
             document.body.classList.remove('menu-open');
 
