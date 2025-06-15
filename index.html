@@ -965,8 +965,10 @@
 
     <script>
         // Live Countdown Timer
+        // Set launch date once - 10 days from page load
+        const launchDate = new Date(new Date().getTime() + (10 * 24 * 60 * 60 * 1000));
+        
         function updateCountdown() {
-            const launchDate = new Date(new Date().getTime() + (10 * 24 * 60 * 60 * 1000)); // 10 days from now
             const now = new Date();
             const diff = launchDate - now;
             
