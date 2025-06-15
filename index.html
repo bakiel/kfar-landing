@@ -709,7 +709,7 @@
         </nav>
 
         <!-- Enhanced Mobile menu -->
-        <div class="hidden fixed inset-0 bg-white" id="mobileMenu" style="z-index: 9999; transform: translateX(100%);">
+        <div class="hidden fixed inset-0 bg-white shadow-2xl" id="mobileMenu" style="z-index: 9999;">
             <div class="flex flex-col h-full">
                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-mint to-cream">
                     <div class="flex items-center space-x-3">
@@ -2343,9 +2343,16 @@
 
             // Show menu with slide animation
             mobileMenu.classList.remove('hidden');
+            mobileMenu.style.display = 'block';
+            mobileMenu.style.transform = 'translateX(100%)';
+            document.body.classList.add('menu-open');
+            
+            // Force reflow
+            mobileMenu.offsetHeight;
+            
+            // Animate in
             mobileMenu.style.transition = 'transform 0.3s ease-out';
             mobileMenu.style.transform = 'translateX(0)';
-            document.body.classList.add('menu-open');
 
             setTimeout(() => {
                 isMenuAnimating = false;
@@ -2369,6 +2376,7 @@
 
             setTimeout(() => {
                 mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
                 backdrop.classList.remove('pointer-events-auto');
                 backdrop.classList.add('pointer-events-none');
                 isMenuAnimating = false;
@@ -2972,5 +2980,61 @@
             }
         }
     </style>
+    
+    <!-- Simple Mobile Menu Fix -->
+    <script>
+        // Override with simple mobile menu implementation
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Simple mobile menu fix loading...');
+            
+            const btn = document.getElementById('mobileMenuBtn');
+            const menu = document.getElementById('mobileMenu');
+            const close = document.getElementById('closeMobileMenu');
+            
+            if (btn && menu && close) {
+                // Remove all existing listeners
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                
+                const newClose = close.cloneNode(true);
+                close.parentNode.replaceChild(newClose, close);
+                
+                // Simple toggle
+                newBtn.addEventListener('click', function() {
+                    console.log('Menu button clicked - opening');
+                    menu.style.display = 'block';
+                    menu.classList.remove('hidden');
+                    menu.style.position = 'fixed';
+                    menu.style.top = '0';
+                    menu.style.left = '0';
+                    menu.style.right = '0';
+                    menu.style.bottom = '0';
+                    menu.style.zIndex = '9999';
+                    menu.style.transform = 'translateX(0)';
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                newClose.addEventListener('click', function() {
+                    console.log('Close button clicked');
+                    menu.style.display = 'none';
+                    menu.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+                
+                // Close on nav clicks
+                menu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        menu.style.display = 'none';
+                        menu.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    });
+                });
+                
+                console.log('Simple mobile menu ready');
+            } else {
+                console.error('Menu elements not found:', {btn: !!btn, menu: !!menu, close: !!close});
+            }
+        });
+    </script>
 </body>
 </html>
