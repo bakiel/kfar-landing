@@ -2307,28 +2307,92 @@
             }
         });
 
-        // Mobile menu
+        // Enhanced Mobile Menu with Smooth Animations
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         const closeMobileMenu = document.getElementById('closeMobileMenu');
+        let isMenuAnimating = false;
 
-        mobileMenuBtn.addEventListener('click', () => {
+        // Create backdrop element
+        const backdrop = document.createElement('div');
+        backdrop.className = 'fixed inset-0 bg-black/50 opacity-0 transition-opacity duration-300 pointer-events-none';
+        backdrop.style.zIndex = '9998';
+        document.body.appendChild(backdrop);
+
+        // Open menu function with animation
+        function openMenu() {
+            if (isMenuAnimating) return;
+            isMenuAnimating = true;
+
+            // Show backdrop
+            backdrop.classList.remove('pointer-events-none');
+            backdrop.classList.add('pointer-events-auto');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+            });
+
+            // Show menu with slide animation
             mobileMenu.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        });
+            mobileMenu.style.transform = 'translateX(100%)';
+            document.body.classList.add('menu-open');
+            
+            requestAnimationFrame(() => {
+                mobileMenu.style.transition = 'transform 0.3s ease-out';
+                mobileMenu.style.transform = 'translateX(0)';
+            });
 
-        closeMobileMenu.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            document.body.style.overflow = '';
-        });
+            setTimeout(() => {
+                isMenuAnimating = false;
+            }, 300);
+        }
 
-        // Close mobile menu on link click
+        // Close menu function with animation
+        function closeMenu() {
+            if (isMenuAnimating) return;
+            isMenuAnimating = true;
+
+            // Hide backdrop
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            
+            // Slide menu out
+            mobileMenu.style.transform = 'translateX(100%)';
+            document.body.classList.remove('menu-open');
+
+            setTimeout(() => {
+                mobileMenu.classList.add('hidden');
+                backdrop.classList.remove('pointer-events-auto');
+                backdrop.classList.add('pointer-events-none');
+                isMenuAnimating = false;
+            }, 300);
+        }
+
+        // Event listeners
+        mobileMenuBtn.addEventListener('click', openMenu);
+        closeMobileMenu.addEventListener('click', closeMenu);
+        backdrop.addEventListener('click', closeMenu);
+
+        // Close on navigation
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
-                document.body.style.overflow = '';
+                closeMenu();
             });
         });
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !mobileMenu.classList.contains('hidden')) {
+                closeMenu();
+            }
+        });
+
+        // Prevent scroll on iOS when menu is open
+        document.addEventListener('touchmove', (e) => {
+            if (document.body.classList.contains('menu-open')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         // Intersection Observer for animations
         const observerOptions = {
@@ -2816,65 +2880,90 @@
         console.log('📧 Customer inquiries: info@kfarmarket.com');
     </script>
     
-    <!-- Mobile Menu Fix -->
+    <!-- Enhanced Mobile Menu Styles -->
     <style>
-        /* Fix mobile menu overlapping issues */
+        /* Mobile menu container */
         #mobileMenu {
             z-index: 9999 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            overscroll-behavior: contain;
         }
+        
+        /* Header z-index */
         #header {
             z-index: 1000 !important;
         }
-        /* Ensure mobile menu covers everything */
-        #mobileMenu.block {
-            display: block !important;
+        
+        /* Backdrop styles handled in JavaScript */
+        
+        /* Prevent body scroll when menu is open */
+        body.menu-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+            touch-action: none;
         }
-        /* Better mobile menu behavior */
-        @media (max-width: 768px) {
+        
+        /* Mobile menu animations */
+        #mobileMenu {
+            will-change: transform;
+        }
+        
+        /* Better touch targets for mobile */
+        .mobile-nav-item {
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Smooth scrolling for menu content */
+        #mobileMenu > div {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+        
+        /* Fix for iOS Safari bounce effect */
+        @supports (-webkit-touch-callout: none) {
             #mobileMenu {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch !important;
-            }
-            /* Prevent body scroll when menu is open */
-            body.menu-open {
-                overflow: hidden !important;
-                position: fixed !important;
-                width: 100% !important;
-            }
-        }
-    </style>
-    
-    <!-- Enhanced Mobile Menu Script -->
-    <script>
-        // Fix mobile menu behavior
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const body = document.body;
-            
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                menu.classList.add('block');
-                body.classList.add('menu-open');
-            } else {
-                menu.classList.add('hidden');
-                menu.classList.remove('block');
-                body.classList.remove('menu-open');
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
             }
         }
         
-        // Close mobile menu when clicking links
-        document.querySelectorAll('.mobile-nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.getElementById('mobileMenu').classList.add('hidden');
-                document.getElementById('mobileMenu').classList.remove('block');
-                document.body.classList.remove('menu-open');
-            });
-        });
-    </script>
+        /* Hamburger button enhancement */
+        #mobileMenuBtn {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        /* Close button enhancement */
+        #closeMobileMenu {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        /* Prevent double-tap zoom on mobile */
+        @media (max-width: 768px) {
+            * {
+                touch-action: manipulation;
+            }
+        }
+    </style>
 </body>
 </html>
