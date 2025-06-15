@@ -3033,7 +3033,7 @@
                         opacity: 1 !important;
                         visibility: visible !important;
                         pointer-events: auto !important;
-                        overflow-y: auto !important;
+                        overflow: hidden !important;
                         transition: transform 0.3s ease-out !important;
                     `);
                     
@@ -3042,12 +3042,15 @@
                         menu.style.transform = 'translateX(0) !important';
                     });
                     
-                    // Also ensure the inner content is visible
+                    // Also ensure the inner content is visible and scrollable
                     const innerDiv = menu.querySelector('.flex.flex-col.h-full');
                     if (innerDiv) {
                         innerDiv.style.opacity = '1';
                         innerDiv.style.visibility = 'visible';
                         innerDiv.style.display = 'flex';
+                        innerDiv.style.height = '100%';
+                        innerDiv.style.overflowY = 'auto';
+                        innerDiv.style.webkitOverflowScrolling = 'touch';
                     }
                     
                     // Remove debug text since menu is working
