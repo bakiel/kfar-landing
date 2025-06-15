@@ -652,6 +652,66 @@
         .stagger-delay-3 { animation-delay: 0.3s; }
         .stagger-delay-4 { animation-delay: 0.4s; }
         
+        /* Mobile menu overlay styles */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        #mobileMenu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            background: white;
+            transition: right 0.3s ease;
+            z-index: 9999;
+            overflow-y: auto;
+        }
+        
+        #mobileMenu.active {
+            right: 0;
+        }
+        
+        @media (min-width: 768px) {
+            #mobileMenu {
+                display: none !important;
+            }
+            
+            .mobile-menu-overlay {
+                display: none !important;
+            }
+            
+            body.menu-open .hero-section,
+            body.menu-open main {
+                filter: none;
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+        
+        /* Ensure desktop menu shows on desktop */
+        @media (max-width: 767px) {
+            .md\:flex {
+                display: none !important;
+            }
+        }
+        
         /* Scroll to top button */
         #scrollToTop {
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
@@ -757,6 +817,9 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile menu overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
     <!-- Hero Section with Cool Countdown -->
     <section id="hero" class="hero-section">
@@ -903,7 +966,7 @@
     <script>
         // Live Countdown Timer
         function updateCountdown() {
-            const launchDate = new Date('2025-02-14T00:00:00');
+            const launchDate = new Date(new Date().getTime() + (10 * 24 * 60 * 60 * 1000)); // 10 days from now
             const now = new Date();
             const diff = launchDate - now;
             
