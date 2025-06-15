@@ -76,7 +76,7 @@ app.post('/api/vendor-signup', async (req, res) => {
       to: process.env.NOTIFICATION_EMAIL || 'bakielisrael@gmail.com',
       from: {
         email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
-        name: 'KFAR Marketplace'
+        name: 'KFAR Shop'
       },
       subject: `New Vendor Application: ${businessName}`,
       html: `
@@ -100,12 +100,12 @@ app.post('/api/vendor-signup', async (req, res) => {
       to: email,
       from: {
         email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
-        name: 'KFAR Marketplace'
+        name: 'KFAR Shop'
       },
-      subject: 'Welcome to KFAR Marketplace - Application Received',
+      subject: 'Welcome to KFAR Shop - Application Received',
       html: `
         <h2>Shalom ${firstName}!</h2>
-        <p>Thank you for your interest in joining KFAR Marketplace as a vendor.</p>
+        <p>Thank you for your interest in joining KFAR Shop as a vendor.</p>
         <p>We've received your application for <strong>${businessName}</strong> and our team will review it shortly.</p>
         <h3>What happens next?</h3>
         <ul>
@@ -119,8 +119,8 @@ app.post('/api/vendor-signup', async (req, res) => {
           <li>Pricing information</li>
           <li>Business hours and delivery preferences</li>
         </ul>
-        <p>Welcome to the Village of Peace digital marketplace!</p>
-        <p>Best regards,<br>The KFAR Marketplace Team</p>
+        <p>Welcome to the Village of Peace digital shop!</p>
+        <p>Best regards,<br>The KFAR Shop Team</p>
       `
     };
 
@@ -151,7 +151,7 @@ app.post('/api/customer-waitlist', async (req, res) => {
       to: process.env.NOTIFICATION_EMAIL || 'bakielisrael@gmail.com',
       from: {
         email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
-        name: 'KFAR Marketplace'
+        name: 'KFAR Shop'
       },
       subject: `New Customer Waitlist: ${name}`,
       html: `
@@ -170,12 +170,12 @@ app.post('/api/customer-waitlist', async (req, res) => {
       to: email,
       from: {
         email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
-        name: 'KFAR Marketplace'
+        name: 'KFAR Shop'
       },
-      subject: 'Welcome to KFAR Marketplace - You\'re on the List!',
+      subject: 'Welcome to KFAR Shop - You\'re on the List!',
       html: `
         <h2>Shalom ${name}!</h2>
-        <p>You're officially on the KFAR Marketplace waitlist!</p>
+        <p>You're officially on the KFAR Shop waitlist!</p>
         <p>As a founding member, you'll receive:</p>
         <ul>
           <li>🎯 Early access when we launch</li>
@@ -186,7 +186,7 @@ app.post('/api/customer-waitlist', async (req, res) => {
         <p>We're launching soon and you'll be the first to know!</p>
         <p>Follow our journey and get sneak peeks of what's coming.</p>
         <p>Thank you for believing in the Village of Peace vision.</p>
-        <p>With gratitude,<br>The KFAR Marketplace Team</p>
+        <p>With gratitude,<br>The KFAR Shop Team</p>
       `
     };
 
