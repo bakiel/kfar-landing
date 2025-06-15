@@ -8,6 +8,7 @@
     "build": "echo 'No build required'"
   },
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "express": "^4.21.2"
   },
   "engines": {

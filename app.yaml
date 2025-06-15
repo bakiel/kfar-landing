@@ -1,15 +1,37 @@
 name: kfar-marketplace-coming-soon
 region: fra
-static_sites:
-- build_command: echo "No build required"
-  catchall_document: index.html
-  environment_slug: html
-  error_document: index.html
-  index_document: index.html
-  name: coming-soon
-  output_dir: /
+services:
+- name: web
+  environment_slug: node-js
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: bakiel/kfar-landing
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
   routes:
   - path: /
+  run_command: node server.js
+  source_dir: /
+  envs:
+  - key: SENDGRID_API_KEY
+    scope: RUN_TIME
+    type: SECRET
+    value: ${SENDGRID_API_KEY}
+  - key: FROM_EMAIL
+    scope: RUN_TIME
+    value: noreply@em6192.kfarmarket.com
+  - key: NOTIFICATION_EMAIL
+    scope: RUN_TIME
+    value: bakielisrael@gmail.com
+  - key: ADMIN_TOKEN
+    scope: RUN_TIME
+    type: SECRET
+    value: ${ADMIN_TOKEN}
+  - key: NODE_ENV
+    scope: RUN_TIME
+    value: production
 domains:
 - domain: kfarmarket.com
   type: PRIMARY

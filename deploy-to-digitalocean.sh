@@ -1,36 +1,73 @@
 #!/bin/bash
 
-echo "🚀 Deploying KFAR Landing Page to DigitalOcean..."
-echo "=============================================="
+# KFAR Marketplace Coming Soon - DigitalOcean Deployment Script
+# This script will deploy the coming soon page with SendGrid integration
 
-# Check if doctl is installed
-if ! command -v doctl &> /dev/null; then
-    echo "❌ doctl CLI not found. Installing..."
-    brew install doctl
+echo "🚀 KFAR Marketplace Coming Soon - Deployment Script"
+echo "=================================================="
+
+# Check if we're in the right directory
+if [ ! -f "server.js" ] || [ ! -f "package.json" ]; then
+    echo "❌ Error: Must run from deploy-coming-soon-1 directory"
+    exit 1
 fi
 
-# Authenticate if needed
-echo "📡 Checking DigitalOcean authentication..."
-doctl auth list &> /dev/null || doctl auth init
+# Check if .env file exists
+if [ ! -f ".env" ]; then
+    echo "❌ Error: .env file not found"
+    echo "Create .env file with:"
+    echo "  SENDGRID_API_KEY=your-key"
+    echo "  ADMIN_TOKEN=your-admin-token"
+    exit 1
+fi
 
-# Get the app ID if it exists
-echo "🔍 Looking for existing KFAR app..."
-APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep "kfar-marketplace" | awk '{print $1}')
+# Load environment variables
+source .env
 
-if [ -z "$APP_ID" ]; then
-    echo "📦 Creating new DigitalOcean app..."
-    doctl apps create --spec app.yaml --wait
-else
-    echo "🔄 Updating existing app (ID: $APP_ID)..."
-    doctl apps update $APP_ID --spec app.yaml --wait
+echo "✅ Environment variables loaded"
+
+# Initialize git if needed
+if [ ! -d ".git" ]; then
+    echo "📦 Initializing git repository..."
+    git init
+    git add .
+    git commit -m "Initial commit: KFAR Coming Soon with SendGrid"
 fi
 
 echo ""
-echo "✅ Deployment complete!"
+echo "📋 Next Steps:"
+echo "=============="
 echo ""
-echo "📱 Your app should be available at:"
-echo "   - Temporary URL: Check DigitalOcean dashboard"
-echo "   - Domain: https://kfarmarket.com"
+echo "1. Create GitHub repository:"
+echo "   - Go to: https://github.com/new"
+echo "   - Name: kfar-landing"
+echo "   - Make it public"
 echo ""
-echo "To get the temporary URL, run:"
-echo "doctl apps list --format DefaultIngress"
+echo "2. Push to GitHub:"
+echo "   git remote add origin https://github.com/bakiel/kfar-landing.git"
+echo "   git branch -M main"
+echo "   git push -u origin main"
+echo ""
+echo "3. Deploy to DigitalOcean:"
+echo "   - Go to: https://cloud.digitalocean.com/apps"
+echo "   - Click 'Create App'"
+echo "   - Choose GitHub as source"
+echo "   - Select your repository"
+echo "   - Use the app.yaml configuration"
+echo ""
+echo "4. Configure Environment Variables in DigitalOcean:"
+echo "   - SENDGRID_API_KEY = (copy from .env)"
+echo "   - ADMIN_TOKEN = (copy from .env)"
+echo ""
+echo "5. Access admin dashboard:"
+echo "   https://kfarmarket.com/api/admin/submissions"
+echo "   Use header: Authorization: Bearer YOUR_ADMIN_TOKEN"
+echo ""
+echo "✨ The server will:"
+echo "   - Save all form submissions to JSON files"
+echo "   - Send confirmation emails via SendGrid"
+echo "   - Store data even if SendGrid fails"
+echo "   - Provide admin access to all submissions"
+
+# Make script executable
+chmod +x deploy-to-digitalocean.sh
