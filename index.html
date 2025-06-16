@@ -806,8 +806,8 @@
         }
         
         /* Hide desktop menu on mobile and tablets */
-        @media (max-width: 1024px) {
-            .md\:flex {
+        @media (max-width: 1023px) {
+            .lg\:flex {
                 display: none !important;
             }
         }
@@ -831,7 +831,7 @@
                     </div>
                 </div>
                 
-                <div class="hidden md:flex items-center space-x-8">
+                <div class="hidden lg:flex items-center space-x-8">
                     <a href="#hero" class="nav-link text-gray-700 hover:text-accent transition-colors relative">Home</a>
                     <a href="#mission" class="nav-link text-gray-700 hover:text-accent transition-colors relative">Our Mission</a>
                     <a href="#vendors" class="nav-link text-gray-700 hover:text-accent transition-colors relative">Vendors</a>
@@ -848,7 +848,7 @@
                 </div>
 
                 <!-- Mobile menu button -->
-                <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors hamburger" id="mobileMenuBtn">
+                <button class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors hamburger" id="mobileMenuBtn" aria-label="Menu">
                     <span></span>
                     <span></span>
                     <span></span>
