@@ -77,7 +77,7 @@ app.post('/api/vendor-signup', async (req, res) => {
     const adminMsg = {
       to: process.env.NOTIFICATION_EMAIL || 'bakielisrael@gmail.com',
       from: {
-        email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
+        email: process.env.FROM_EMAIL || 'hello@kfarmarket.com',
         name: 'KFAR Shop'
       },
       ...adminEmail
@@ -87,7 +87,7 @@ app.post('/api/vendor-signup', async (req, res) => {
     const vendorMsg = {
       to: email,
       from: {
-        email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
+        email: process.env.FROM_EMAIL || 'hello@kfarmarket.com',
         name: 'KFAR Shop'
       },
       ...vendorEmail
@@ -120,7 +120,7 @@ app.post('/api/customer-waitlist', async (req, res) => {
     const adminMsg = {
       to: process.env.NOTIFICATION_EMAIL || 'bakielisrael@gmail.com',
       from: {
-        email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
+        email: process.env.FROM_EMAIL || 'hello@kfarmarket.com',
         name: 'KFAR Shop'
       },
       ...adminEmail
@@ -130,7 +130,7 @@ app.post('/api/customer-waitlist', async (req, res) => {
     const customerMsg = {
       to: email,
       from: {
-        email: process.env.FROM_EMAIL || 'noreply@em6192.kfarmarket.com',
+        email: process.env.FROM_EMAIL || 'hello@kfarmarket.com',
         name: 'KFAR Shop'
       },
       ...customerEmail
