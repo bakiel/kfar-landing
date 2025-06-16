@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Mobile Menu</title>
+    <script>
+        function checkMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            const btn = document.getElementById('mobileMenuBtn');
+            
+            console.log('=== Menu Debug Info ===');
+            
+            if (menu) {
+                const styles = window.getComputedStyle(menu);
+                console.log('Menu found!');
+                console.log('- Classes:', menu.className);
+                console.log('- Style attribute:', menu.getAttribute('style'));
+                console.log('- Computed right:', styles.right);
+                console.log('- Computed display:', styles.display);
+                console.log('- Has .active class:', menu.classList.contains('active'));
+            } else {
+                console.log('Menu NOT FOUND');
+            }
+            
+            if (overlay) {
+                console.log('\nOverlay found!');
+                console.log('- Classes:', overlay.className);
+                console.log('- Has .active class:', overlay.classList.contains('active'));
+            }
+            
+            if (btn) {
+                console.log('\nButton found!');
+                console.log('- Classes:', btn.className);
+            }
+            
+            console.log('\nBody classes:', document.body.className);
+            
+            // Check if CSS is loaded
+            const testEl = document.createElement('div');
+            testEl.id = 'mobileMenu';
+            testEl.style.cssText = '';
+            document.body.appendChild(testEl);
+            const testStyles = window.getComputedStyle(testEl);
+            console.log('\nCSS check - #mobileMenu should have right: -100%');
+            console.log('Actual value:', testStyles.right);
+            document.body.removeChild(testEl);
+        }
+        
+        // Run on parent page load
+        window.onload = () => {
+            if (window.parent && window.parent !== window) {
+                console.log('Running in iframe, checking parent...');
+                const parentMenu = window.parent.document.getElementById('mobileMenu');
+                if (parentMenu) {
+                    console.log('Found menu in parent!');
+                    const parentStyles = window.parent.getComputedStyle(parentMenu);
+                    console.log('Parent menu right:', parentStyles.right);
+                }
+            } else {
+                checkMenu();
+            }
+        };
+    </script>
+</head>
+<body>
+    <h1>Mobile Menu Debugger</h1>
+    <button onclick="checkMenu()">Check Menu Status</button>
+    <button onclick="window.location.href='http://localhost:8080'">Go to Main Site</button>
+    
+    <iframe src="http://localhost:8080" width="100%" height="600" style="border: 1px solid #ccc; margin-top: 20px;"></iframe>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Countdown</title>
+</head>
+<body>
+    <h1>Countdown Test</h1>
+    <div>
+        Days: <span id="days">00</span><br>
+        Hours: <span id="hours">00</span><br>
+        Minutes: <span id="minutes">00</span><br>
+        Seconds: <span id="seconds">00</span>
+    </div>
+    
+    <script>
+        // Test countdown
+        function updateCountdown() {
+            const launchDate = new Date('2025-02-14T00:00:00');
+            const now = new Date();
+            const diff = launchDate - now;
+            
+            console.log('Launch date:', launchDate);
+            console.log('Now:', now);
+            console.log('Diff:', diff);
+            
+            if (diff > 0) {
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = days;
+                document.getElementById('hours').textContent = hours;
+                document.getElementById('minutes').textContent = minutes;
+                document.getElementById('seconds').textContent = seconds;
+                
+                console.log('Updated:', days, 'days', hours, 'hours', minutes, 'minutes', seconds, 'seconds');
+            }
+        }
+        
+        // Run immediately and every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>

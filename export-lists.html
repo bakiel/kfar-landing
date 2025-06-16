@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KFAR List Export Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #478c0b;
+            margin-bottom: 30px;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-box h2 {
+            margin: 0;
+            color: #333;
+            font-size: 36px;
+        }
+        .stat-box p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+        button {
+            background: #478c0b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3a7009;
+        }
+        .data-table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .data-table th {
+            background: #478c0b;
+            color: white;
+        }
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .export-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 KFAR Marketplace - List Export Tool</h1>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <h2 id="vendorCount">0</h2>
+                <p>Vendor Applications</p>
+            </div>
+            <div class="stat-box">
+                <h2 id="customerCount">0</h2>
+                <p>Customer Waitlist</p>
+            </div>
+            <div class="stat-box">
+                <h2 id="totalCount">0</h2>
+                <p>Total Signups</p>
+            </div>
+        </div>
+
+        <div class="export-section">
+            <h3>📊 Export Options</h3>
+            <button onclick="exportVendorsCSV()">Export Vendors (CSV)</button>
+            <button onclick="exportCustomersCSV()">Export Customers (CSV)</button>
+            <button onclick="exportAllJSON()">Export All (JSON)</button>
+            <button onclick="viewVendors()">View Vendors</button>
+            <button onclick="viewCustomers()">View Customers</button>
+        </div>
+
+        <div id="dataDisplay"></div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        const vendors = JSON.parse(localStorage.getItem('kfar_vendor_applications') || '[]');
+        const customers = JSON.parse(localStorage.getItem('kfar_customer_waitlist') || '[]');
+        
+        // Update stats
+        document.getElementById('vendorCount').textContent = vendors.length;
+        document.getElementById('customerCount').textContent = customers.length;
+        document.getElementById('totalCount').textContent = vendors.length + customers.length;
+
+        // Export functions
+        function exportVendorsCSV() {
+            const headers = ['Timestamp', 'First Name', 'Last Name', 'Business Name', 'Email', 'Phone', 'Location', 'Business Type', 'Ready Date', 'Email Sent'];
+            const rows = vendors.map(v => [
+                v.timestamp || '',
+                v.firstName || '',
+                v.lastName || '',
+                v.businessName || '',
+                v.email || '',
+                v.phone || '',
+                v.location || '',
+                v.vendorType || v.businessType || '',
+                v.readyDate || '',
+                v.emailSent ? 'Yes' : 'No'
+            ]);
+            
+            downloadCSV('kfar_vendors_' + new Date().toISOString().split('T')[0] + '.csv', headers, rows);
+        }
+
+        function exportCustomersCSV() {
+            const headers = ['Timestamp', 'Name', 'Email', 'Phone/WhatsApp', 'Location', 'Preferences', 'Referral Source', 'Email Sent'];
+            const rows = customers.map(c => [
+                c.timestamp || '',
+                c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim(),
+                c.email || '',
+                c.phone || c.whatsapp || '',
+                c.location || '',
+                c.preferences || '',
+                c.referralSource || '',
+                c.emailSent ? 'Yes' : 'No'
+            ]);
+            
+            downloadCSV('kfar_customers_' + new Date().toISOString().split('T')[0] + '.csv', headers, rows);
+        }
+
+        function exportAllJSON() {
+            const data = {
+                exportDate: new Date().toISOString(),
+                vendors: vendors,
+                customers: customers,
+                summary: {
+                    totalVendors: vendors.length,
+                    totalCustomers: customers.length,
+                    emailsSent: {
+                        vendors: vendors.filter(v => v.emailSent).length,
+                        customers: customers.filter(c => c.emailSent).length
+                    }
+                }
+            };
+            
+            downloadJSON('kfar_all_data_' + new Date().toISOString().split('T')[0] + '.json', data);
+        }
+
+        function downloadCSV(filename, headers, rows) {
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadJSON(filename, data) {
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function viewVendors() {
+            let html = '<h3>Vendor Applications</h3>';
+            html += '<table class="data-table"><thead><tr>';
+            html += '<th>Date</th><th>Name</th><th>Business</th><th>Email</th><th>Phone</th><th>Location</th>';
+            html += '</tr></thead><tbody>';
+            
+            vendors.forEach(v => {
+                const date = v.timestamp ? new Date(v.timestamp).toLocaleDateString() : 'N/A';
+                html += `<tr>
+                    <td>${date}</td>
+                    <td>${v.firstName} ${v.lastName}</td>
+                    <td>${v.businessName}</td>
+                    <td>${v.email}</td>
+                    <td>${v.phone}</td>
+                    <td>${v.location}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('dataDisplay').innerHTML = html;
+        }
+
+        function viewCustomers() {
+            let html = '<h3>Customer Waitlist</h3>';
+            html += '<table class="data-table"><thead><tr>';
+            html += '<th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Location</th><th>Interests</th>';
+            html += '</tr></thead><tbody>';
+            
+            customers.forEach(c => {
+                const date = c.timestamp ? new Date(c.timestamp).toLocaleDateString() : 'N/A';
+                const name = c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim();
+                html += `<tr>
+                    <td>${date}</td>
+                    <td>${name}</td>
+                    <td>${c.email}</td>
+                    <td>${c.phone || c.whatsapp || 'N/A'}</td>
+                    <td>${c.location || 'N/A'}</td>
+                    <td>${c.preferences || 'N/A'}</td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('dataDisplay').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

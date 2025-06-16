@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KFAR Shop - Data Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #478c0b;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .data-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        pre {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+        button {
+            background: #478c0b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3a7009;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 KFAR Shop - Form Data Check</h1>
+        
+        <div class="status" id="status">
+            Checking form functionality...
+        </div>
+
+        <div class="data-section">
+            <h2>📊 Local Storage Data</h2>
+            <div id="localStorage"></div>
+        </div>
+
+        <div class="data-section">
+            <h2>🧪 Form Submission Test</h2>
+            <button onclick="testCustomerForm()">Test Customer Form</button>
+            <button onclick="testVendorForm()">Test Vendor Form</button>
+            <button onclick="testBackendHealth()">Test Backend Health</button>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="data-section">
+            <h2>🔍 Server Data Check</h2>
+            <input type="password" id="adminToken" placeholder="Enter admin token">
+            <button onclick="checkServerData()">Check Server Data</button>
+            <div id="serverData"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check localStorage
+        function checkLocalStorage() {
+            const vendors = JSON.parse(localStorage.getItem('kfar_vendor_applications') || '[]');
+            const customers = JSON.parse(localStorage.getItem('kfar_customer_waitlist') || '[]');
+            
+            let html = `
+                <p><strong>Vendor Applications:</strong> ${vendors.length}</p>
+                <p><strong>Customer Waitlist:</strong> ${customers.length}</p>
+            `;
+            
+            if (vendors.length > 0) {
+                html += '<h4>Latest Vendor:</h4><pre>' + JSON.stringify(vendors[vendors.length - 1], null, 2) + '</pre>';
+            }
+            
+            if (customers.length > 0) {
+                html += '<h4>Latest Customer:</h4><pre>' + JSON.stringify(customers[customers.length - 1], null, 2) + '</pre>';
+            }
+            
+            document.getElementById('localStorage').innerHTML = html;
+        }
+
+        // Test customer form
+        async function testCustomerForm() {
+            const testData = {
+                name: `Test Customer ${Date.now()}`,
+                email: `test${Date.now()}@example.com`,
+                whatsapp: '+972501234567'
+            };
+            
+            try {
+                const response = await fetch('/api/customer-waitlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Customer Form Test:</h4><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+                if (result.success) {
+                    document.getElementById('status').className = 'status success';
+                    document.getElementById('status').textContent = '✅ Customer form is working!';
+                }
+            } catch (error) {
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // Test vendor form
+        async function testVendorForm() {
+            const testData = {
+                firstName: 'Test',
+                lastName: `Vendor ${Date.now()}`,
+                businessName: `Test Business ${Date.now()}`,
+                email: `vendor${Date.now()}@example.com`,
+                phone: '+972501234567',
+                location: 'Dimona',
+                businessType: 'Food',
+                message: 'Test submission'
+            };
+            
+            try {
+                const response = await fetch('/api/vendor-signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                const result = await response.json();
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Vendor Form Test:</h4><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+                if (result.success) {
+                    document.getElementById('status').className = 'status success';
+                    document.getElementById('status').textContent = '✅ Vendor form is working!';
+                }
+            } catch (error) {
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // Test backend health
+        async function testBackendHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const result = await response.json();
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Backend Health:</h4><pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+                if (result.status === 'ok') {
+                    document.getElementById('status').className = 'status success';
+                    document.getElementById('status').textContent = '✅ Backend is healthy!';
+                }
+            } catch (error) {
+                document.getElementById('testResults').innerHTML = 
+                    `<h4>Error:</h4><pre>${error.message}</pre>`;
+                document.getElementById('status').className = 'status error';
+                document.getElementById('status').textContent = '❌ Backend connection failed';
+            }
+        }
+
+        // Check server data
+        async function checkServerData() {
+            const token = document.getElementById('adminToken').value;
+            if (!token) {
+                alert('Please enter admin token');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/submissions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 401) {
+                    document.getElementById('serverData').innerHTML = 
+                        '<p class="error">❌ Unauthorized - check admin token</p>';
+                    return;
+                }
+                
+                const result = await response.json();
+                document.getElementById('serverData').innerHTML = 
+                    `<h4>Server Data:</h4><pre>${JSON.stringify(result, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('serverData').innerHTML = 
+                    `<h4>Error:</h4><pre>${error.message}</pre>`;
+            }
+        }
+
+        // Initialize
+        checkLocalStorage();
+        testBackendHealth();
+    </script>
+</body>
+</html>

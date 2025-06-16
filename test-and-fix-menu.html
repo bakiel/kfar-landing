@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Menu Test & Fix</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .warning {
+            background: #ffc107;
+            color: #333;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .test-results {
+            margin: 20px 0;
+        }
+        .test-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Mobile Menu Test & Fix</h1>
+        
+        <p>This tool will test and fix the mobile menu on your KFAR coming soon page.</p>
+        
+        <div>
+            <button onclick="testMenu()">🧪 Test Menu</button>
+            <button onclick="applyFix()" class="success">✅ Apply Fix</button>
+            <button onclick="simulateMobile()" class="warning">📱 Simulate Mobile</button>
+            <button onclick="clearFixes()" class="danger">🗑️ Clear All Fixes</button>
+        </div>
+        
+        <div id="status" class="status">Ready to test...</div>
+        
+        <div id="results" class="test-results"></div>
+        
+        <h2>Live Preview</h2>
+        <iframe id="preview" src="index.html"></iframe>
+    </div>
+
+    <script>
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+        const preview = document.getElementById('preview');
+        
+        function log(message) {
+            status.textContent += message + '\n';
+            console.log(message);
+        }
+        
+        function clearLog() {
+            status.textContent = '';
+        }
+        
+        function testMenu() {
+            clearLog();
+            results.innerHTML = '';
+            log('🧪 Starting menu tests...\n');
+            
+            const iframe = preview.contentWindow;
+            const doc = iframe.document;
+            
+            // Test 1: Elements exist
+            const btn = doc.getElementById('mobileMenuBtn');
+            const menu = doc.getElementById('mobileMenu');
+            const close = doc.getElementById('closeMobileMenu');
+            
+            addTestResult('Menu button exists', !!btn);
+            addTestResult('Menu container exists', !!menu);
+            addTestResult('Close button exists', !!close);
+            
+            if (!btn || !menu || !close) {
+                log('❌ Critical elements missing! Cannot continue tests.');
+                return;
+            }
+            
+            // Test 2: Visibility
+            const menuStyle = iframe.getComputedStyle(menu);
+            addTestResult('Menu initially hidden', menuStyle.display === 'none');
+            addTestResult('Menu z-index high enough', parseInt(menuStyle.zIndex) > 1000 || menuStyle.zIndex === '999999');
+            
+            // Test 3: Button visibility
+            const btnStyle = iframe.getComputedStyle(btn);
+            const isMobile = iframe.innerWidth < 768;
+            addTestResult('Button visible on mobile', isMobile ? btnStyle.display !== 'none' : true);
+            
+            // Test 4: Click simulation
+            log('\n📱 Simulating menu click...');
+            btn.click();
+            
+            setTimeout(() => {
+                const afterClickStyle = iframe.getComputedStyle(menu);
+                addTestResult('Menu shows after click', afterClickStyle.display !== 'none');
+                addTestResult('Menu positioned correctly', afterClickStyle.position === 'fixed');
+                
+                log('\n✅ Test complete!');
+            }, 100);
+        }
+        
+        function addTestResult(test, passed) {
+            const div = document.createElement('div');
+            div.className = `test-item ${passed ? 'test-pass' : 'test-fail'}`;
+            div.textContent = `${passed ? '✅' : '❌'} ${test}`;
+            results.appendChild(div);
+            log(`${passed ? '✅' : '❌'} ${test}`);
+        }
+        
+        function applyFix() {
+            clearLog();
+            log('🔧 Applying comprehensive fix...\n');
+            
+            const iframe = preview.contentWindow;
+            const doc = iframe.document;
+            
+            // Inject fix script
+            const fixScript = doc.createElement('script');
+            fixScript.textContent = `
+                (function() {
+                    console.log('🚀 Applying mobile menu fix from test tool');
+                    
+                    const menu = document.getElementById('mobileMenu');
+                    const btn = document.getElementById('mobileMenuBtn');
+                    const close = document.getElementById('closeMobileMenu');
+                    
+                    if (!menu || !btn || !close) {
+                        console.error('Required elements not found');
+                        return;
+                    }
+                    
+                    // Reset menu styles
+                    menu.style.cssText = 'display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 999999; background: white; overflow: hidden;';
+                    
+                    // Simple open/close functions
+                    window.openMobileMenu = function() {
+                        menu.style.display = 'block';
+                        menu.style.transform = 'translateX(0)';
+                        document.body.style.overflow = 'hidden';
+                    };
+                    
+                    window.closeMobileMenu = function() {
+                        menu.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            menu.style.display = 'none';
+                        }, 300);
+                        document.body.style.overflow = '';
+                    };
+                    
+                    // Attach listeners
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        openMobileMenu();
+                    };
+                    
+                    close.onclick = (e) => {
+                        e.preventDefault();
+                        closeMobileMenu();
+                    };
+                    
+                    // Add transitions
+                    const style = document.createElement('style');
+                    style.textContent = '#mobileMenu { transition: transform 0.3s ease-out !important; }';
+                    document.head.appendChild(style);
+                    
+                    console.log('✅ Fix applied successfully');
+                })();
+            `;
+            doc.body.appendChild(fixScript);
+            
+            log('✅ Fix applied! Test the menu now.');
+            log('📱 Click the menu button in the preview to test.');
+        }
+        
+        function simulateMobile() {
+            clearLog();
+            log('📱 Simulating mobile viewport...\n');
+            
+            // Resize iframe to mobile width
+            preview.style.width = '375px';
+            preview.style.height = '667px';
+            
+            log('✅ Preview resized to iPhone dimensions (375x667)');
+            log('🔄 Reload the preview to see mobile layout');
+            
+            // Reload iframe
+            preview.src = preview.src;
+        }
+        
+        function clearFixes() {
+            clearLog();
+            log('🗑️ Clearing all fixes and reloading...\n');
+            
+            // Reset iframe size
+            preview.style.width = '100%';
+            preview.style.height = '600px';
+            
+            // Reload
+            preview.src = preview.src;
+            
+            log('✅ Page reloaded with original code');
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            setTimeout(testMenu, 1000);
+        });
+    </script>
+</body>
+</html>
