@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Menu Diagnostic Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+        .diagnostic-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .fix-button {
+            background: #28a745;
+        }
+        .fix-button:hover {
+            background: #218838;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .issue-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #dc3545;
+            background: #fff;
+        }
+        .solution-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #28a745;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <h1>🔍 Mobile Menu Diagnostic Tool</h1>
+        
+        <div class="test-section">
+            <div class="test-title">Quick Actions</div>
+            <button onclick="runFullDiagnostic()">🏃 Run Full Diagnostic</button>
+            <button onclick="applyQuickFix()" class="fix-button">🔧 Apply Quick Fix</button>
+            <button onclick="testMenuNow()">📱 Test Menu Now</button>
+            <button onclick="clearAllStyles()">🧹 Clear All Styles</button>
+        </div>
+
+        <div id="results"></div>
+
+        <div class="test-section">
+            <div class="test-title">Manual Tests</div>
+            <button onclick="checkElements()">Check Elements Exist</button>
+            <button onclick="checkZIndex()">Check Z-Index Issues</button>
+            <button onclick="checkVisibility()">Check Visibility</button>
+            <button onclick="checkEventListeners()">Check Event Listeners</button>
+            <button onclick="checkResponsive()">Check Responsive</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">Fix History</div>
+            <div id="fixHistory" class="code-block">No fixes applied yet.</div>
+        </div>
+    </div>
+
+    <script>
+        const results = document.getElementById('results');
+        const fixHistory = document.getElementById('fixHistory');
+        let issues = [];
+
+        function log(message, status = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${status}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        function runFullDiagnostic() {
+            results.innerHTML = '<h3>🔍 Running Full Diagnostic...</h3>';
+            issues = [];
+
+            // Test 1: Check if elements exist
+            const btn = parent.document.getElementById('mobileMenuBtn');
+            const menu = parent.document.getElementById('mobileMenu');
+            const close = parent.document.getElementById('closeMobileMenu');
+
+            if (!btn) {
+                issues.push('Mobile menu button not found');
+                log('❌ Mobile menu button (#mobileMenuBtn) not found', 'fail');
+            } else {
+                log('✅ Mobile menu button found', 'pass');
+            }
+
+            if (!menu) {
+                issues.push('Mobile menu container not found');
+                log('❌ Mobile menu container (#mobileMenu) not found', 'fail');
+            } else {
+                log('✅ Mobile menu container found', 'pass');
+            }
+
+            if (!close) {
+                issues.push('Close button not found');
+                log('❌ Close button (#closeMobileMenu) not found', 'fail');
+            } else {
+                log('✅ Close button found', 'pass');
+            }
+
+            // Test 2: Check visibility
+            if (menu) {
+                const computed = window.getComputedStyle(menu);
+                const display = computed.display;
+                const visibility = computed.visibility;
+                const opacity = computed.opacity;
+                const zIndex = computed.zIndex;
+
+                log(`Display: ${display}`, display === 'none' ? 'warning' : 'pass');
+                log(`Visibility: ${visibility}`, visibility === 'hidden' ? 'warning' : 'pass');
+                log(`Opacity: ${opacity}`, opacity === '0' ? 'warning' : 'pass');
+                log(`Z-Index: ${zIndex}`, zIndex === 'auto' || parseInt(zIndex) < 1000 ? 'warning' : 'pass');
+
+                if (display === 'none') issues.push('Menu display is none');
+                if (visibility === 'hidden') issues.push('Menu visibility is hidden');
+                if (opacity === '0') issues.push('Menu opacity is 0');
+                if (zIndex === 'auto' || parseInt(zIndex) < 1000) issues.push('Z-index too low');
+            }
+
+            // Test 3: Check for conflicting styles
+            if (menu) {
+                const classes = menu.className;
+                if (classes.includes('hidden')) {
+                    issues.push('Menu has "hidden" class');
+                    log('⚠️ Menu has "hidden" class which sets display:none', 'warning');
+                }
+            }
+
+            // Test 4: Check parent elements
+            if (menu) {
+                let parent = menu.parentElement;
+                while (parent && parent !== document.body) {
+                    const parentComputed = window.getComputedStyle(parent);
+                    if (parentComputed.display === 'none' || parentComputed.visibility === 'hidden') {
+                        issues.push(`Parent element ${parent.tagName} is hiding the menu`);
+                        log(`❌ Parent element ${parent.tagName} is hiding the menu`, 'fail');
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+
+            // Test 5: Check event listeners
+            if (btn) {
+                const hasListeners = btn.onclick || btn.getAttribute('onclick') || getEventListeners(btn).click;
+                if (!hasListeners) {
+                    issues.push('No click listeners on menu button');
+                    log('❌ No click event listeners found on menu button', 'fail');
+                } else {
+                    log('✅ Click listeners found on menu button', 'pass');
+                }
+            }
+
+            // Show summary
+            if (issues.length === 0) {
+                log('🎉 No issues found! Menu should be working.', 'pass');
+            } else {
+                log(`🔧 Found ${issues.length} issues to fix:`, 'warning');
+                issues.forEach(issue => {
+                    const div = document.createElement('div');
+                    div.className = 'issue-item';
+                    div.textContent = `• ${issue}`;
+                    results.appendChild(div);
+                });
+            }
+        }
+
+        function applyQuickFix() {
+            results.innerHTML = '<h3>🔧 Applying Quick Fix...</h3>';
+            
+            const menu = parent.document.getElementById('mobileMenu');
+            const btn = parent.document.getElementById('mobileMenuBtn');
+            const close = parent.document.getElementById('closeMobileMenu');
+
+            if (!menu || !btn || !close) {
+                log('❌ Missing required elements. Cannot apply fix.', 'fail');
+                return;
+            }
+
+            // Fix 1: Remove problematic classes
+            menu.className = '';
+            log('✅ Removed all classes from menu', 'pass');
+
+            // Fix 2: Apply working styles directly
+            const fixStyles = `
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 999999;
+                background-color: white;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            `;
+            menu.style.cssText = fixStyles;
+            log('✅ Applied working styles', 'pass');
+
+            // Fix 3: Re-attach event listeners
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                menu.style.display = 'block';
+                menu.style.transform = 'translateX(0)';
+                document.body.style.overflow = 'hidden';
+                console.log('Menu opened via diagnostic fix');
+            };
+            log('✅ Attached new click handler to button', 'pass');
+
+            // Fix 4: Close button
+            const newClose = close.cloneNode(true);
+            close.parentNode.replaceChild(newClose, close);
+            
+            newClose.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                menu.style.display = 'none';
+                document.body.style.overflow = '';
+                console.log('Menu closed via diagnostic fix');
+            };
+            log('✅ Attached new click handler to close button', 'pass');
+
+            // Log the fix
+            fixHistory.textContent = `Fix applied at ${new Date().toLocaleTimeString()}:\n` +
+                `- Removed all classes\n` +
+                `- Applied inline styles with z-index: 999999\n` +
+                `- Re-attached event listeners\n` +
+                `- Menu should work now!`;
+
+            log('🎉 Quick fix applied! Test the menu now.', 'pass');
+        }
+
+        function testMenuNow() {
+            const btn = parent.document.getElementById('mobileMenuBtn');
+            if (btn) {
+                btn.click();
+                log('📱 Triggered menu button click. Check if menu appears!', 'pass');
+            } else {
+                log('❌ Menu button not found', 'fail');
+            }
+        }
+
+        function clearAllStyles() {
+            const menu = parent.document.getElementById('mobileMenu');
+            if (menu) {
+                menu.style.cssText = '';
+                menu.className = 'hidden';
+                log('🧹 Cleared all inline styles and reset classes', 'pass');
+            }
+        }
+
+        function checkElements() {
+            results.innerHTML = '<h3>Checking Elements...</h3>';
+            const elements = ['mobileMenuBtn', 'mobileMenu', 'closeMobileMenu'];
+            elements.forEach(id => {
+                const el = parent.document.getElementById(id);
+                if (el) {
+                    log(`✅ #${id} exists`, 'pass');
+                } else {
+                    log(`❌ #${id} not found`, 'fail');
+                }
+            });
+        }
+
+        function checkZIndex() {
+            results.innerHTML = '<h3>Checking Z-Index Hierarchy...</h3>';
+            const menu = parent.document.getElementById('mobileMenu');
+            if (menu) {
+                const menuZ = window.getComputedStyle(menu).zIndex;
+                log(`Menu z-index: ${menuZ}`, menuZ === 'auto' || parseInt(menuZ) < 1000 ? 'warning' : 'pass');
+                
+                // Check other high z-index elements
+                const allElements = parent.document.querySelectorAll('*');
+                let highZ = [];
+                allElements.forEach(el => {
+                    const z = window.getComputedStyle(el).zIndex;
+                    if (z !== 'auto' && parseInt(z) > 100) {
+                        highZ.push({el: el, z: z});
+                    }
+                });
+                
+                if (highZ.length > 0) {
+                    log(`Found ${highZ.length} elements with high z-index:`, 'warning');
+                    highZ.sort((a, b) => parseInt(b.z) - parseInt(a.z)).slice(0, 5).forEach(item => {
+                        log(`  ${item.el.tagName}#${item.el.id || '(no id)'}.${item.el.className || '(no class)'}: ${item.z}`, 'warning');
+                    });
+                }
+            }
+        }
+
+        function checkVisibility() {
+            results.innerHTML = '<h3>Checking Visibility...</h3>';
+            const menu = parent.document.getElementById('mobileMenu');
+            if (menu) {
+                const rect = menu.getBoundingClientRect();
+                log(`Position: ${rect.top}, ${rect.left}`, 'pass');
+                log(`Size: ${rect.width}x${rect.height}`, rect.width === 0 || rect.height === 0 ? 'fail' : 'pass');
+                
+                const computed = window.getComputedStyle(menu);
+                log(`Transform: ${computed.transform}`, computed.transform.includes('translateX') ? 'warning' : 'pass');
+            }
+        }
+
+        function checkEventListeners() {
+            results.innerHTML = '<h3>Checking Event Listeners...</h3>';
+            const btn = parent.document.getElementById('mobileMenuBtn');
+            if (btn) {
+                // Try to get event listeners (this might not work in all browsers)
+                const hasOnclick = btn.onclick !== null;
+                const hasAttribute = btn.hasAttribute('onclick');
+                
+                log(`Has onclick property: ${hasOnclick}`, hasOnclick ? 'pass' : 'warning');
+                log(`Has onclick attribute: ${hasAttribute}`, hasAttribute ? 'pass' : 'warning');
+                
+                // Test click
+                const testClick = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                btn.dispatchEvent(testClick);
+                log('Dispatched test click event', 'pass');
+            }
+        }
+
+        function checkResponsive() {
+            results.innerHTML = '<h3>Checking Responsive Behavior...</h3>';
+            const width = window.innerWidth;
+            const btn = parent.document.getElementById('mobileMenuBtn');
+            
+            log(`Window width: ${width}px`, 'pass');
+            log(`Mobile breakpoint: ${width < 768 ? 'Yes' : 'No'}`, width < 768 ? 'pass' : 'warning');
+            
+            if (btn) {
+                const btnDisplay = window.getComputedStyle(btn).display;
+                log(`Button display: ${btnDisplay}`, btnDisplay !== 'none' ? 'pass' : 'fail');
+            }
+        }
+
+        function getEventListeners(element) {
+            // This is a placeholder - actual implementation would need browser-specific code
+            return {};
+        }
+
+        // Auto-run diagnostic on load
+        window.onload = function() {
+            log('Diagnostic tool loaded. Click "Run Full Diagnostic" to start.', 'pass');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backup Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="bg-gray-100 p-4">
+        <h1 class="text-2xl mb-4">Testing Backup Mobile Menu</h1>
+        
+        <!-- Mobile menu button -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors bg-blue-500 text-white" id="mobileMenuBtn">
+            Open Menu
+        </button>
+        
+        <!-- Enhanced Mobile menu -->
+        <div class="hidden fixed inset-0 bg-white" id="mobileMenu" style="z-index: 9999;">
+            <div class="flex flex-col h-full">
+                <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-100 to-green-100">
+                    <h2 class="font-bold text-xl">KFAR Menu</h2>
+                    <button id="closeMobileMenu" class="p-2 rounded-lg hover:bg-white/50 transition-colors">
+                        ✕
+                    </button>
+                </div>
+                <nav class="flex-1 p-6 space-y-2">
+                    <a href="#home" class="block py-3 px-4 text-lg rounded-lg hover:bg-blue-100 transition-all">Home</a>
+                    <a href="#about" class="block py-3 px-4 text-lg rounded-lg hover:bg-blue-100 transition-all">About</a>
+                    <a href="#contact" class="block py-3 px-4 text-lg rounded-lg hover:bg-blue-100 transition-all">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu - Fixed with null checks
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const closeMobileMenu = document.getElementById('closeMobileMenu');
+
+        if (mobileMenuBtn && mobileMenu && closeMobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                console.log('Opening menu');
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+                mobileMenu.style.zIndex = '9999';
+                document.body.style.overflow = 'hidden';
+            });
+
+            closeMobileMenu.addEventListener('click', () => {
+                console.log('Closing menu');
+                mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+
+            // Close mobile menu on link click
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    console.log('Link clicked, closing menu');
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = '';
+                });
+            });
+        } else {
+            console.error('Menu elements not found!');
+        }
+    </script>
+</body>
+</html>

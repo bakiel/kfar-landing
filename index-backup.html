@@ -709,7 +709,7 @@
         </nav>
 
         <!-- Enhanced Mobile menu -->
-        <div class="hidden fixed inset-0 bg-white z-50" id="mobileMenu">
+        <div class="hidden fixed inset-0 bg-white" id="mobileMenu" style="z-index: 9999;">
             <div class="flex flex-col h-full">
                 <div class="flex justify-between items-center p-6 border-b bg-gradient-to-r from-mint to-cream">
                     <div class="flex items-center space-x-3">
@@ -2307,28 +2307,34 @@
             }
         });
 
-        // Mobile menu
+        // Mobile menu - Fixed with null checks
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         const closeMobileMenu = document.getElementById('closeMobileMenu');
 
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        });
+        if (mobileMenuBtn && mobileMenu && closeMobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+                mobileMenu.style.zIndex = '9999';
+                document.body.style.overflow = 'hidden';
+            });
 
-        closeMobileMenu.addEventListener('click', () => {
-            mobileMenu.classList.add('hidden');
-            document.body.style.overflow = '';
-        });
-
-        // Close mobile menu on link click
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
+            closeMobileMenu.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
                 document.body.style.overflow = '';
             });
-        });
+
+            // Close mobile menu on link click
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.display = 'none';
+                    document.body.style.overflow = '';
+                });
+            });
+        }
 
         // Intersection Observer for animations
         const observerOptions = {
