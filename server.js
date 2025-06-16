@@ -150,6 +150,30 @@ app.post('/api/customer-waitlist', async (req, res) => {
   }
 });
 
+// Admin login endpoint
+app.post('/api/admin/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  // Check credentials against environment variables
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@kfarmarket.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  
+  if (email === adminEmail && password === adminPassword) {
+    // Return the actual admin token from environment
+    const token = process.env.ADMIN_TOKEN || 'demo-token';
+    res.json({ 
+      success: true, 
+      token,
+      user: { email }
+    });
+  } else {
+    res.status(401).json({ 
+      success: false, 
+      message: 'Invalid credentials' 
+    });
+  }
+});
+
 // Admin endpoint to get all submissions (protected)
 app.get('/api/admin/submissions', async (req, res) => {
   try {
@@ -166,7 +190,12 @@ app.get('/api/admin/submissions', async (req, res) => {
     for (const file of files) {
       if (file.endsWith('.json')) {
         const data = await fs.readFile(path.join(DATA_DIR, file), 'utf-8');
-        submissions.push(JSON.parse(data));
+        const record = JSON.parse(data);
+        // Add ID based on filename if not present
+        if (!record.id) {
+          record.id = file.replace('.json', '');
+        }
+        submissions.push(record);
       }
     }
 
@@ -185,6 +214,99 @@ app.get('/api/admin/submissions', async (req, res) => {
   }
 });
 
+// Admin endpoint to update a submission
+app.put('/api/admin/submissions/:id', async (req, res) => {
+  try {
+    // Check admin token
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token !== process.env.ADMIN_TOKEN) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+    const updates = req.body;
+    
+    // Find and update the file
+    const files = await fs.readdir(DATA_DIR);
+    let found = false;
+    
+    for (const file of files) {
+      if (file.includes(id) || file.replace('.json', '') === id) {
+        const filepath = path.join(DATA_DIR, file);
+        const data = await fs.readFile(filepath, 'utf-8');
+        const record = JSON.parse(data);
+        
+        // Update record with new data
+        const updatedRecord = { ...record, ...updates, lastModified: new Date().toISOString() };
+        await fs.writeFile(filepath, JSON.stringify(updatedRecord, null, 2));
+        
+        found = true;
+        res.json({ success: true, data: updatedRecord });
+        break;
+      }
+    }
+    
+    if (!found) {
+      res.status(404).json({ error: 'Submission not found' });
+    }
+  } catch (error) {
+    console.error('Error updating submission:', error);
+    res.status(500).json({ error: 'Failed to update submission' });
+  }
+});
+
+// Admin endpoint to delete a submission
+app.delete('/api/admin/submissions/:id', async (req, res) => {
+  try {
+    // Check admin token
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token !== process.env.ADMIN_TOKEN) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+    
+    // Find and delete the file
+    const files = await fs.readdir(DATA_DIR);
+    let found = false;
+    
+    for (const file of files) {
+      if (file.includes(id) || file.replace('.json', '') === id) {
+        await fs.unlink(path.join(DATA_DIR, file));
+        found = true;
+        res.json({ success: true, message: 'Submission deleted' });
+        break;
+      }
+    }
+    
+    if (!found) {
+      res.status(404).json({ error: 'Submission not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting submission:', error);
+    res.status(500).json({ error: 'Failed to delete submission' });
+  }
+});
+
+// Admin endpoint to add a new submission
+app.post('/api/admin/submissions', async (req, res) => {
+  try {
+    // Check admin token
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token !== process.env.ADMIN_TOKEN) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { type, ...data } = req.body;
+    const record = await saveFormData(type, data);
+    
+    res.json({ success: true, data: record });
+  } catch (error) {
+    console.error('Error adding submission:', error);
+    res.status(500).json({ error: 'Failed to add submission' });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
@@ -192,6 +314,16 @@ app.get('/api/health', (req, res) => {
     sendgrid: process.env.SENDGRID_API_KEY ? 'configured' : 'not configured',
     dataDir: DATA_DIR
   });
+});
+
+// Serve admin dashboard
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
+});
+
+// Serve admin dashboard (handle trailing slash)
+app.get('/admin/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin-dashboard.html'));
 });
 
 // Serve index.html for all other routes
