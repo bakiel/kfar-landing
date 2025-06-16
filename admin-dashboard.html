@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Check Registrations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-8">🔍 KFAR Admin - Find Registrations</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Enter Admin Token</h2>
+            <input type="password" 
+                   id="adminToken" 
+                   placeholder="Enter admin token (e.g., kfar-admin-2025)"
+                   class="w-full p-3 border rounded-lg mb-4"
+                   value="kfar-admin-2025">
+            <button onclick="checkRegistrations()" 
+                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                Check All Registrations
+            </button>
+        </div>
+        
+        <div id="results" class="space-y-4"></div>
+    </div>
+
+    <script>
+        async function checkRegistrations() {
+            const token = document.getElementById('adminToken').value;
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = '<div class="bg-yellow-100 p-4 rounded-lg">⏳ Checking registrations...</div>';
+            
+            try {
+                const response = await fetch('https://kfarmarket.com/api/admin/submissions', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.submissions || data.submissions.length === 0) {
+                    resultsDiv.innerHTML = '<div class="bg-red-100 p-4 rounded-lg">❌ No registrations found</div>';
+                    return;
+                }
+                
+                // Look for Nir specifically
+                const nirRegistrations = data.submissions.filter(sub => 
+                    sub.name?.toLowerCase().includes('nir') || 
+                    sub.name?.toLowerCase().includes('avieli')
+                );
+                
+                let html = '';
+                
+                if (nirRegistrations.length > 0) {
+                    html += `
+                        <div class="bg-green-100 p-6 rounded-lg mb-4">
+                            <h3 class="text-xl font-bold mb-3">✅ Found Nir Avieli's Registration!</h3>
+                            ${nirRegistrations.map(reg => `
+                                <div class="bg-white p-4 rounded border-l-4 border-green-500 mb-2">
+                                    <p><strong>Name:</strong> ${reg.name}</p>
+                                    <p><strong>Email:</strong> ${reg.email}</p>
+                                    <p><strong>Phone:</strong> ${reg.phone || 'Not provided'}</p>
+                                    <p><strong>Type:</strong> ${reg.userType}</p>
+                                    <p><strong>Date:</strong> ${new Date(reg.createdAt).toLocaleString()}</p>
+                                    ${reg.businessName ? `<p><strong>Business:</strong> ${reg.businessName}</p>` : ''}
+                                    ${reg.message ? `<p><strong>Message:</strong> ${reg.message}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-xl font-bold mb-4">📊 All Registrations (${data.submissions.length} total)</h3>
+                        <div class="space-y-3">
+                            ${data.submissions.map(sub => `
+                                <div class="border-b pb-3 ${sub.name?.toLowerCase().includes('nir') ? 'bg-yellow-50 p-3 rounded' : ''}">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-semibold">${sub.name} (${sub.userType})</p>
+                                            <p class="text-sm text-gray-600">${sub.email}</p>
+                                            ${sub.phone ? `<p class="text-sm">📱 ${sub.phone}</p>` : ''}
+                                        </div>
+                                        <span class="text-xs text-gray-500">${new Date(sub.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                resultsDiv.innerHTML = html;
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-100 p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-2">❌ Error</h3>
+                        <p class="mb-4">${error.message}</p>
+                        <div class="bg-white p-4 rounded">
+                            <p class="font-semibold mb-2">🔧 Fix Instructions:</p>
+                            <ol class="list-decimal ml-5 space-y-2">
+                                <li>Go to DigitalOcean Dashboard</li>
+                                <li>Navigate to Apps → kfar-landing-page → Settings</li>
+                                <li>Click "Environment Variables"</li>
+                                <li>Update ADMIN_TOKEN to: <code class="bg-gray-200 px-2 py-1 rounded">kfar-admin-2025</code></li>
+                                <li>Save and wait 2 minutes for redeploy</li>
+                                <li>Try again!</li>
+                            </ol>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-check on load
+        window.onload = () => {
+            setTimeout(checkRegistrations, 500);
+        };
+    </script>
+</body>
+</html>
