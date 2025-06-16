@@ -776,10 +776,24 @@
             pointer-events: none;
         }
         
-        /* Ensure mobile menu is only for mobile */
-        @media (min-width: 768px) {
+        /* Tablet breakpoint - keep mobile menu */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            /* Keep mobile menu for tablets */
+            #menuToggle {
+                display: block !important;
+            }
+            
+            /* Hide desktop menu on tablets */
+            .desktop-menu {
+                display: none !important;
+            }
+        }
+        
+        /* Desktop only - hide mobile menu */
+        @media (min-width: 1025px) {
             #mobileMenu,
-            .mobile-menu-overlay {
+            .mobile-menu-overlay,
+            #menuToggle {
                 display: none !important;
             }
             
@@ -791,8 +805,8 @@
             }
         }
         
-        /* Ensure desktop menu shows on desktop */
-        @media (max-width: 767px) {
+        /* Hide desktop menu on mobile and tablets */
+        @media (max-width: 1024px) {
             .md\:flex {
                 display: none !important;
             }
